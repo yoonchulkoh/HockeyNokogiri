@@ -20,3 +20,5 @@ password: '[ログインパスワード]'
 ```
 ## 叩きます
 $ ruby HockeyNokogiri.ruby
+
+※waitとか全然仕込んでないのでやり過ぎると怒られるかもです。。
