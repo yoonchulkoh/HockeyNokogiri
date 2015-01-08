@@ -147,7 +147,7 @@ class HockeyNokogiri
 
   def export_csv(crash_list)
     puts '### CSV出力開始'
-    CSV.open("crash_report_#{DateTime.now.strftime("%Y%m%d%H%M%S")}.csv", "wb") do |csv|
+    CSV.open("crash_report_#{DateTime.now.strftime("%Y%m%d%H%M%S")}.csv", "wb", force_quotes: true) do |csv|
       csv << ['Device','OS','Jailbroken Device','Description Attached','User','Contact','Date','-','Description']
       crash_list.each do |crash|
         csv << crash

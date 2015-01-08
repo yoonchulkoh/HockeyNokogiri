@@ -36,3 +36,4 @@ build/
 config.yml
 Gemfile.lock
 crash_report*
+vendor/*
