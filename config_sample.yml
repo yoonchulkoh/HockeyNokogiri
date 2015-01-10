@@ -2,3 +2,4 @@ app_id: ''
 version: ''
 email: ''
 password: ''
+debag: false

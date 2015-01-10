@@ -6,7 +6,6 @@ require 'csv'
 class HockeyNokogiri
 
   CONFIG_FILE_NAME = 'config.yml'
-  DEBUG = true
 
   @config
   @agent
@@ -74,7 +73,7 @@ class HockeyNokogiri
     # ページング判定は面倒なのでとりあえずMAX10までで
     1.upto(10) do |i|
       res = get_detail_page_urls_per_page(@agent, get_url, i)
-      break if DEBUG
+      break if @config['debug']
       next unless res
       rel_list.concat(res[0])
       description_list.concat(res[1])
@@ -97,7 +96,7 @@ class HockeyNokogiri
           rel_list << rel
         end
         description_list << tr.css('td.description').text.strip.gsub(/\n/, "") unless tr.css('td.description') == nil
-        break if DEBUG
+        break if @config['debug']
       end
     end
     return rel_list, description_list
@@ -110,7 +109,7 @@ class HockeyNokogiri
       reason = description_list[i]
       1.upto(10) do |i|
         res = get_crash_list_per_page(@agent, "https://rink.hockeyapp.net#{url}?order=desc&per_page=50&sort_by=user&type=crashes", i, reason)
-        break if DEBUG
+        break if @config['debug']
         next unless res
         crash_list.concat(res)
       end
@@ -139,7 +138,7 @@ class HockeyNokogiri
         end
         tds << reason
         crash_list << tds unless tds.nil?
-        break if DEBUG
+        break if @config['debug']
       end
     end
     return crash_list
