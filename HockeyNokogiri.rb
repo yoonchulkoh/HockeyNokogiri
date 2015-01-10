@@ -6,7 +6,7 @@ require 'csv'
 class HockeyNokogiri
 
   CONFIG_FILE_NAME = 'config.yml'
-  DEBUG = false
+  DEBUG = true
 
   @config
   @agent
@@ -147,11 +147,17 @@ class HockeyNokogiri
 
   def export_csv(crash_list)
     puts '### CSV出力開始'
-    CSV.open("crash_report_#{DateTime.now.strftime("%Y%m%d%H%M%S")}.csv", "wb", force_quotes: true) do |csv|
+    file_name = "crash_report/crash_report_#{DateTime.now.strftime("%Y%m%d%H%M%S")}.csv"
+    CSV.open(file_name, "wb", force_quotes: true) do |csv|
       csv << ['Device','OS','Jailbroken Device','Description Attached','User','Contact','Date','-','Description']
       crash_list.each do |crash|
         csv << crash
       end
+    end
+    File.open(file_name+"_utf16", 'w') do |f|
+      bom = "\xFF\xFE".force_encoding("UTF-16LE")
+      f.print bom # BOM
+      f.puts File.open(file_name).read.encode("UTF-16LE")
     end
     puts '### CSV出力完了'
   end
