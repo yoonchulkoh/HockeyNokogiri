@@ -2,6 +2,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'mechanize'
 require 'csv'
+require 'time'
 
 class HockeyNokogiri
 
@@ -132,7 +133,9 @@ class HockeyNokogiri
             if span.nil? || span.empty?
               tds << ""
             else
-              tds << span.attr('data-value')
+              date_value = span.attr('data-value')
+              time = Time.parse(date_value).localtime.strftime('%Y-%m-%d %H:%M:%S')
+              tds << time
             end
           end
         end
@@ -146,18 +149,19 @@ class HockeyNokogiri
 
   def export_csv(crash_list)
     puts '### CSV出力開始'
-    file_name = "crash_report/crash_report_#{DateTime.now.strftime("%Y%m%d%H%M%S")}.csv"
-    CSV.open(file_name, "wb", force_quotes: true) do |csv|
+    file_name = "crash_report/crash_report_#{DateTime.now.strftime("%Y%m%d%H%M%S")}"
+    CSV.open("#{file_name}.csv", "wb", force_quotes: true) do |csv|
       csv << ['Device','OS','Jailbroken Device','Description Attached','User','Contact','Date','-','Description']
       crash_list.each do |crash|
         csv << crash
       end
     end
-    File.open(file_name+"_utf16", 'w') do |f|
-      bom = "\xFF\xFE".force_encoding("UTF-16LE")
-      f.print bom # BOM
-      f.puts File.open(file_name).read.encode("UTF-16LE")
-    end
+    # mac用ファイル出力
+    # File.open("#{file_name}_utf16.csv", 'w') do |f|
+    #   bom = "\xFF\xFE".force_encoding("UTF-16LE")
+    #   f.print bom # BOM
+    #   f.puts File.open(file_name).read.encode("UTF-16LE")
+    # end
     puts '### CSV出力完了'
   end
 
