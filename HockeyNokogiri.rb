@@ -74,10 +74,10 @@ class HockeyNokogiri
     # ページング判定は面倒なのでとりあえずMAX10までで
     1.upto(10) do |i|
       res = get_detail_page_urls_per_page(@agent, get_url, i)
-      break if @config['debug']
       next unless res
       rel_list.concat(res[0])
       description_list.concat(res[1])
+      break if @config['debug']
     end
     puts "### 詳細ページURL取得完了 #{rel_list.count}件"
     return rel_list, description_list
@@ -109,10 +109,10 @@ class HockeyNokogiri
       puts "#{i+1}件/#{rel_list.count}件"
       reason = description_list[i]
       1.upto(10) do |i|
-        res = get_crash_list_per_page(@agent, "https://rink.hockeyapp.net#{url}?order=desc&per_page=50&sort_by=user&type=crashes", i, reason)
-        break if @config['debug']
+        res = get_crash_list_per_page(@agent, url, i, reason)
         next unless res
         crash_list.concat(res)
+        break if @config['debug']
       end
     end
     crash_list
@@ -120,7 +120,7 @@ class HockeyNokogiri
 
   def get_crash_list_per_page(agent, url, page, reason)
     crash_list = []
-    agent.get(url + "&page=#{page}") do |page|
+    agent.get("https://rink.hockeyapp.net#{url}?order=desc&per_page=50&sort_by=user&type=crashes" + "&page=#{page}") do |page|
       html = Nokogiri::HTML(page.body)
       return false if html.css('table.crashes tr') == nil
       html.css('table.crashes tr.crash').each do |tr|
@@ -140,6 +140,7 @@ class HockeyNokogiri
           end
         end
         tds << reason
+        tds << "https://rink.hockeyapp.net#{url}"
         crash_list << tds unless tds.nil?
         break if @config['debug']
       end
@@ -151,7 +152,7 @@ class HockeyNokogiri
     puts '### CSV出力開始'
     file_name = "crash_report/crash_report_#{DateTime.now.strftime("%Y%m%d%H%M%S")}"
     CSV.open("#{file_name}.csv", "wb", force_quotes: true) do |csv|
-      csv << ['Device','OS','Jailbroken Device','Description Attached','User','Contact','Date','-','Description']
+      csv << ['Device','OS','Jailbroken Device','Description Attached','User','Contact','Date','-','Description', 'URL']
       crash_list.each do |crash|
         csv << crash
       end
