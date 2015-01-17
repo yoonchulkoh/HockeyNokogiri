@@ -10,8 +10,11 @@ class HockeyNokogiri
 
   @config
   @agent
+  @debug
 
-  def execute
+  def execute(debug=false)
+    @debug = debug
+    puts 'debug mode.' if @debug
     init
     doc = get_document
     do_login
@@ -77,7 +80,7 @@ class HockeyNokogiri
       next unless res
       rel_list.concat(res[0])
       description_list.concat(res[1])
-      break if @config['debug']
+      break if @debug
     end
     puts "### 詳細ページURL取得完了 #{rel_list.count}件"
     return rel_list, description_list
@@ -97,7 +100,7 @@ class HockeyNokogiri
           rel_list << rel
         end
         description_list << tr.css('td.description').text.strip.gsub(/\n/, "") unless tr.css('td.description') == nil
-        break if @config['debug']
+        break if @debug
       end
     end
     return rel_list, description_list
@@ -112,7 +115,7 @@ class HockeyNokogiri
         res = get_crash_list_per_page(@agent, url, i, reason)
         next unless res
         crash_list.concat(res)
-        break if @config['debug']
+        break if @debug
       end
     end
     crash_list
@@ -142,7 +145,7 @@ class HockeyNokogiri
         tds << reason
         tds << "https://rink.hockeyapp.net#{url}"
         crash_list << tds unless tds.nil?
-        break if @config['debug']
+        break if @debug
       end
     end
     return crash_list
@@ -168,6 +171,6 @@ class HockeyNokogiri
 
 end
 
-
 hockeyNokogiri = HockeyNokogiri.new
-hockeyNokogiri.execute
+debug = ARGV[0] == '-d' || ARGV[0] == '--debug'
+hockeyNokogiri.execute(debug)
